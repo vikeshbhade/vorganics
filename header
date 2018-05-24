@@ -1,0 +1,75 @@
+<?php
+
+use yii\helpers\Html;
+//use yii\grid\GridView;
+use kartik\grid\GridView;
+/* @var $this yii\web\View */
+/* @var $dataProvider yii\data\ActiveDataProvider */
+
+$this->title = Yii::t('app', 'Countries');
+$this->params['breadcrumbs'][] = $this->title;
+?>
+<div class="country-index">
+
+    <h1><?= Html::encode($this->title) ?></h1>
+
+    <p>
+        <?= Html::a(Yii::t('app', 'Create Country'), ['create'], ['class' => 'btn btn-success']) ?>
+    </p>
+   
+
+    <?php
+
+    echo GridView::widget([
+        'dataProvider'=> $dataProvider,
+        
+        'columns' => [
+            ['class' => 'yii\grid\SerialColumn'],
+
+            'id',
+            'code',
+            'name',
+            'phonecode',
+            'lat',
+            'lng',
+
+            ['class' => 'yii\grid\ActionColumn',
+                'template'=> '{history}',
+                    'buttons'=> [
+                        'history'=> function($url, $model){
+                            $url = Yii::$app->homeUrl;
+                            $crUrl = "http://".$_SERVER['SERVER_NAME'].$url."/country/upload?id=".$model->id;
+                            
+                            return Html::a('<span class="glyphicon glyphicon-eye-closed" id="'.$model->id.'">closed</span>', $crUrl, [
+                                    Yii::t('app', 'history')
+                            ]);
+                        }
+
+                    ],
+        ],
+        ],
+        'floatHeader'=>true,
+        'floatHeaderOptions'=>['scrollingTop'=>'50'],
+        'perfectScrollbar'=> true,
+    ]);
+    
+    $url1 = Yii::$app->homeUrl;
+    $crurl = 'https://'.$_SERVER['SERVER_NAME'].$url1;
+    $this->registerJs(' 
+        $(document).ready(function(){
+            $(".glyphicon.glyphicon-eye-closed").click(function(){
+                $.ajax({
+                   url: "'.$crurl.'?r=history/upload",
+                   type: "post",
+                   data: {id: this.id},
+                   success: function(data){
+                             alert(data);
+                    }
+                  });
+         });
+
+        });', \yii\web\View::POS_READY);
+
+    
+    ?>
+</div>
